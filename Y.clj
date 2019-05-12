@@ -5,24 +5,30 @@
    (fn [x] (f (x x)))))
 
 ;; Applicative order evaluation
-;; λf.(λx.λx.(f (x x)) y) (λx.λx.(f (x x)) y)
+;; λf.(λx.λy.(f (x x)) y) (λx.λy.(f (x x)) y)
 (defn Y1 [f]
   ((fn [x] (fn [y] ((f (x x)) y)))
    (fn [x] (fn [y] ((f (x x)) y)))))
 
+;; Reference: http"//www.righto.com/2009/03/y-combinator-in-arc-and-java.html"
 ;; λr.(λf.(f f)) λf.(r λx.((f f) x))
 (defn Y2 [r]
   ((fn [f] (f f))
    (fn [f] (r (fn [x] ((f f) x))))))
 
-(defn fact-step [f]
+;; Fixed point combinator with applicative order
+(defn Z [f]
+  ((fn [x] (f (fn [v] ((x x) v))))
+   (fn [x] (f (fn [v] ((x x) v))))))
+
+(defn fact-step [next-step]
   (fn [n]
     (if (= n 0)
       1
-      (* (f (- n 1)) n))))
+      (* (next-step (- n 1)) n))))
 
-(def fact (Y1 fact-step))
-(fact 5)
+(def fact (Z fact-step))
+;; (fact 5)
 
 ;; Factorial reduction using the Y combinator
 ;; ------------------------------------------
@@ -31,7 +37,7 @@
 
 ;; fact == Y fact-step
 ;;      == (λf.(λx.f (x x)) (λx.f (x x))) fact-step
-;;      -> (λx.fact-step (x x)) (λx.fact-step (x x))
+;;      -> (λx.fact-step (x x)) (λx.fact-step (x x)) -- can't go beyond this point in an applicative order evaluation language
 ;;      -> fact-step ((λx.fact-step (x x)) (λx.fact-step (x x)))
 ;;      == (λf.λn.if (iszero n) 1 (mult (f (pred n) n))) ((λx.fact-step (x x)) (λx.fact-step (x x)))
 ;;      -> λn.(if (iszero n) 1 (mult ( (((λx.fact-step (x x)) (λx.fact-step (x x))) (pred n) ) n)))
@@ -70,11 +76,30 @@
 ;;        ->                             mult 1 1
 ;;        ->                             1
 
-(defn fib-step [f]
+(defn fib-step [next-step]
   (fn [n]
     (if (<= n 1)
       n
-      (+ (f (- n 1)) (f (- n 2))))))
+      (+ (next-step (- n 1)) (next-step (- n 2))))))
 
 (def fib (Y1 fib-step))
-(map fib (range 10))
+;; (map fib (range 10))
+
+;; The Ackermann function using direct recursion
+(defn ackermann-clj [m n]
+  (cond
+    (= m 0) (+ n 1)
+    (= n 0) (ackermann-clj (- m 1) 1)
+    :else (ackermann-clj (- m 1) (ackermann-clj m (- n 1)))))
+
+(defn ackermann-step-curried [next-step]
+  (fn [m]
+    (fn [n]
+      (cond
+        (= m 0) (+ n 1)
+        (= n 0) ((next-step (- m 1)) 1)
+        :else ((next-step (- m 1))
+               ((next-step m) (- n 1)))))))
+
+(def ackermann-curried (Y1 ackermann-step))
+;; ((ackermann-curried 0) 1)
