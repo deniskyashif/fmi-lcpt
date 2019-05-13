@@ -87,7 +87,7 @@
             (c-second u))))
       ((c-cons c0) c0)))))
 
-(def iszero
+(def is-zero
   (fn [n]
     ((n (fn [x] c-false)) c-true)))
 
