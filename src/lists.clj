@@ -71,18 +71,18 @@
       (fn [list]
         ;; wrap both branches inside a function and call the result to simulate lazy evaluation
         ((((my-if (is-empty list))
-          (fn [] list))
-         (fn [] ((pair (f (head list))) ((next-step f) (tail list))))))))))
+           (fn [] list))
+          (fn [] ((pair (f (head list))) ((next-step f) (tail list))))))))))
 
 (def my-map (Y1 my-map-step))
 
 ;; --- Test my-map
 (let [list234 ((pair 2) ((pair 3) ((pair 4) empty-list)))
       squared234 ((my-map (fn [x] (* x x))) list234)]
-  (assert (= ((my-map identity) empty-list)))  
+  (assert (= ((my-map identity) empty-list) empty-list))  
   (assert (= (head squared234) 4))
-  (assert (= (head (tail squared234))))
-  (assert (= (head (tail (tail squared234))))))
+  (assert (= (head (tail squared234)) 9))
+  (assert (= (head (tail (tail squared234))) 16)))
 ;; ---
 
 (def my-reverse-step
@@ -90,8 +90,7 @@
     (fn [list]
       ((((my-if (is-empty list))
          (fn [] empty-list))
-        (fn []
-          ((my-append (next-step (tail list))) ((pair (head list)) empty-list))))))))
+        (fn [] ((my-append (next-step (tail list))) ((pair (head list)) empty-list))))))))
 
 (def my-reverse (Y1 my-reverse-step))
 
@@ -102,3 +101,43 @@
   (assert (= (head (tail revl12)) 1))
   (assert (= (my-reverse empty-list) empty-list)))
 ;; ---
+
+(def my-length-step
+  (fn [next-step]
+    (fn [list]
+      ((((my-if (is-empty list))
+         (fn [] 0))
+        (fn [] (+ (next-step (tail list)) 1)))))))
+
+(def my-length (Y1 my-length-step))
+
+;; --- Test my-length
+(let [list234 ((pair 2) ((pair 3) ((pair 4) empty-list)))]
+  (assert (= (my-length empty-list) 0))
+  (assert (= (my-length list234) 3))
+  (assert (= (my-length ((pair 1) empty-list)) 1)))
+;; ---
+
+(def my-filter-step
+  (fn [next-step]
+    (fn [predicate]
+      (fn [list]
+        ((((my-if (is-empty list))
+           (fn [] empty-list))
+          (fn []
+            ((((my-if (predicate (head list)))
+               (fn [] ((pair (head list)) ((next-step predicate) (tail list)))))
+              (fn [] ((next-step predicate) (tail list))))))))))))
+
+(def my-filter (Y1 my-filter-step))
+
+;; --- Test my-filter
+(let [list234 ((pair 2) ((pair 3) ((pair 4) empty-list)))
+      is-even (fn [x] (if (even? x) c-true c-false))
+      evens ((my-filter is-even) list234)]
+  (assert (= ((my-filter is-even) empty-list) empty-list))
+  (assert (= (my-length evens) 2))
+  (assert (= (head evens) 2))
+  (assert (= (head (tail evens)) 4)))
+;; ---
+
