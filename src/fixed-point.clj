@@ -17,6 +17,7 @@
    (fn [f] (r (fn [x] ((f f) x))))))
 
 ;; Fixed point combinator with applicative order
+;; λf.(λx.f (λv.(x x) y)) (λx.f (λv.(x x) y))
 (defn Z [f]
   ((fn [x] (f (fn [v] ((x x) v))))
    (fn [x] (f (fn [v] ((x x) v))))))

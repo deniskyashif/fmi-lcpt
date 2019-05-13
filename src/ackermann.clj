@@ -1,5 +1,9 @@
 (load-file "./fixed-point.clj")
 
+(def succ (fn [x] (+ x 1)))
+(def pred (fn [x] (- x 1)))
+(def is-zero (fn [x] (= x 0)))
+
 ;; The Ackermann function using direct recursion
 (defn ackermann-rec [m n]
   (cond
@@ -12,11 +16,11 @@
     (fn [m]
       (fn [n]
         (cond
-          (= m 0) (+ n 1)
-          (= n 0) ((next-step (- m 1)) 1)
-          :else ((next-step (- m 1))
-                 ((next-step m) (- n 1))))))))
+          (is-zero m) (succ n)
+          (is-zero n) ((next-step (pred m)) 1)
+          :else ((next-step (pred m))
+                 ((next-step m) (pred n))))))))
 
-(def ackermann (Y1 ackermann-step))
+(def ackermann (Z ackermann-step))
 
 ;; ((ackermann 0) 1)

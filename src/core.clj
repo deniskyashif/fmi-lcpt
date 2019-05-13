@@ -60,31 +60,31 @@
       ((p (c-not q)) q))))  
 
 (def c-cons
-  (fn [b]
-    (fn [t]
+  (fn [p]
+    (fn [q]
       (fn [f]
-        ((b t) f)))))
+        ((f p) q)))))
 
-;; ?
-(def cl
-  (fn [u] (u c-true)))
+;; First of a pair
+(def c-first
+  (fn [p] (p c-true)))
 
-;; ?
-(def cr
-  (fn [u] (u c-false)))
+;; Second of a pair
+(def c-second
+  (fn [p] (p c-false)))
 
 (def c-succ
   (fn [n]
     (fn [f]
       (fn [x]
         (f ((n f) x))))))
-;; ?
+
 (def c-pred
   (fn [n]
-    (cr
+    (c-first
      ((n (fn [u]
-           ((c-cons (c-succ (cl u)))
-            (cl u))))
+           ((c-cons (c-succ (c-first u)))
+            (c-second u))))
       ((c-cons c0) c0)))))
 
 (def iszero
