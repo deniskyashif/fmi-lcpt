@@ -25,15 +25,13 @@
             c-false))))
      c-true)))
 
-;; --- Example
+;; --- Test
 (let [list012 ((pair 0) ((pair 1) ((pair 2) empty-list)))]
-  (println (is-empty empty-list)) ; c-true
-  (println (is-empty list012)) ; c-false
-  ;; print the elements of the list
-  (println (head list012)) ; 0
-  (println (head (tail list012))) ; 1
-  (println (head (tail (tail list012)))) ; 2
-  list012)
+  (assert (= (is-empty empty-list) c-true))
+  (assert (= (is-empty list012) c-false))
+  (assert (= (head list012) 0))
+  (assert (= (head (tail list012)) 1))
+  (assert (= (head (tail (tail list012))) 2)))
 ;; ---
 
 (def my-if
@@ -58,14 +56,13 @@
 
 (def append (Y1 append-step))
 
-;; --- Example
+;; --- Test
 (let [l1 ((pair 0) empty-list)
       l2 ((pair 1) empty-list)
       l12 ((append l1) l2)]
-  (println (head l12)) ; 0
-  (println (head (tail l12))) ; 1
-  (println (is-empty (tail (tail l12)))) ; c-true
-  l12)
+  (assert (= (head l12) 0))
+  (assert (= (head (tail l12)) 1))
+  (assert (= (is-empty (tail (tail l12)))) c-true))
 ;; ---
 
 (def my-map-step
@@ -78,11 +75,12 @@
 
 (def my-map (Y1 my-map-step))
 
+;; --- Test
 (let [list012 ((pair 2) ((pair 3) ((pair 4) empty-list)))
       squared012 ((my-map (fn [x] (* x x))) list012)]
-  (println ((my-map identity) empty-list))
-  
-  (println (head squared012)) ; 4
-  (println (head (tail squared012))) ; 9
-  (println (head (tail (tail squared012)))) ; 16
-  squared012)
+  (assert (= ((my-map identity) empty-list)))  
+  (assert (= (head squared012) 4))
+  (assert (= (head (tail squared012))))
+  (assert (= (head (tail (tail squared012))))))
+;; ---
+
