@@ -33,7 +33,7 @@
   (println (head list012)) ; 0
   (println (head (tail list012))) ; 1
   (println (head (tail (tail list012)))) ; 2
-  )
+  list012)
 ;; ---
 
 (def my-if
@@ -67,3 +67,22 @@
   (println (is-empty (tail (tail l12)))) ; c-true
   l12)
 ;; ---
+
+(def my-map-step
+  (fn [next-step]
+    (fn [f]
+      (fn [list]
+        ((((my-if (is-empty list))
+          (fn [] list))
+         (fn [] ((pair (f (head list))) ((next-step f) (tail list))))))))))
+
+(def my-map (Y1 my-map-step))
+
+(let [list012 ((pair 2) ((pair 3) ((pair 4) empty-list)))
+      squared012 ((my-map (fn [x] (* x x))) list012)]
+  (println ((my-map identity) empty-list))
+  
+  (println (head squared012)) ; 4
+  (println (head (tail squared012))) ; 9
+  (println (head (tail (tail squared012)))) ; 16
+  squared012)
