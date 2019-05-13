@@ -74,7 +74,7 @@ const range = (from, to) => [...Array(to).keys()].splice(from, to);
 console.log(range(0, 10).map(fib));
 
 // Ackermann Implementation
-function ackermannStep (nextStep) {
+function ackermannStep(nextStep) {
     return function (m, n) {
         if (m === 0)
             return n + 1;
@@ -84,7 +84,7 @@ function ackermannStep (nextStep) {
     };
 };
 
-function ackermannStepCurried (nextStep) {
+function ackermannStepCurried(nextStep) {
     return function (m) {
         return function (n) {
             if (m === 0)
@@ -97,6 +97,6 @@ function ackermannStepCurried (nextStep) {
 };
 
 const ackermann = Y1(ackermannStep);
-const ackermann = Y1(ackermannStepCurried);
+const ackermannCurried = Y1(ackermannStepCurried);
 
 console.log(ackermann(0)(5));
