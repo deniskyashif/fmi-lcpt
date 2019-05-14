@@ -1,9 +1,13 @@
+;; λx.λy.x
 (def c-true (fn [x] (fn [y] x)))
+;; λx.λy.y
 (def c-false (fn [x] (fn [y] y)))
-
+;; λp.p c-false
 (def c-first (fn [p] (p c-true)))
+;; λp.p c-false
 (def c-second (fn [p] (p c-false)))
 
+;; λp.λq.λf.f p q
 (def c-cons
   (fn [p]
     (fn [q]
@@ -11,11 +15,13 @@
         ((f p) q)))))
 
 ;; Church Pairs - list representation
-(def pair c-cons)
-(def head c-first) ;; value of a node
+(def pair c-cons) ;; initialize a list node
+(def head c-first) ;; retreive the value of a node
 (def tail c-second) ;; points to the next node
 
 (def empty-list c-false)
+
+;; λlist.list (λh.λt.λd.c-false) c-true
 (def is-empty
   (fn [list]
     ((list
@@ -34,6 +40,7 @@
   (assert (= (head (tail (tail list012))) 2)))
 ;; ---
 
+;; λcondition.λthen.λelse.condition then else
 (def my-if
   (fn [condition]
     (fn [then]
@@ -41,10 +48,12 @@
         ((condition then) else)))))
 
 ;; Fixed point combinator for languages with applicative order evaluation
+;; λf.(λx.λy.(f (x x)) y) (λx.λy.(f (x x)) y)
 (defn Y1 [f]
   ((fn [x] (fn [y] ((f (x x)) y)))
    (fn [x] (fn [y] ((f (x x)) y)))))
 
+;; λnext-step.λlist1.λlist2.my-if (is-empty list1) list2 ((pair (head list1)) (tail list1) list2)
 (def my-append-step
   (fn [next-step]
     (fn [list1]
@@ -65,6 +74,7 @@
   (assert (= (is-empty (tail (tail l12)))) c-true))
 ;; ---
 
+;; λnext-step.λf.λlist.my-if (is-empty list) list ((pair (f (head list))) ((next-step f) (tail-list)))
 (def my-map-step
   (fn [next-step]
     (fn [f]
@@ -85,6 +95,7 @@
   (assert (= (head (tail (tail squared234))) 16)))
 ;; ---
 
+;; ;; λnext-step.λlist.my-if (is-empty list) empty-list ((my-append (next-step (tail list))) ((pair (head list)) empty-list))
 (def my-reverse-step
   (fn [next-step]
     (fn [list]
@@ -102,6 +113,7 @@
   (assert (= (my-reverse empty-list) empty-list)))
 ;; ---
 
+;; λnext-step.λlist.my-if (is-empty list) 0 (succ (next-step (tail list)))
 (def my-length-step
   (fn [next-step]
     (fn [list]
@@ -118,6 +130,8 @@
   (assert (= (my-length ((pair 1) empty-list)) 1)))
 ;; ---
 
+;; λnext-step.λpredicate.λlist
+;;     .my-if (is-empty list) empty-list (my-if (predicate (head list)) ((pair (head list) (next-step predicate (tail list)))) (next-step predicate (tail list)))
 (def my-filter-step
   (fn [next-step]
     (fn [predicate]
