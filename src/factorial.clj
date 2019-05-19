@@ -17,7 +17,7 @@
 
 ;; fact == Y fact-step
 ;;      == (λf.(λx.f (x x)) (λx.f (x x))) fact-step
-;;      -> (λx.fact-step (x x)) (λx.fact-step (x x)) -- can't go beyond this point in an applicative order evaluation language
+;;      -> (λx.fact-step (x x)) (λx.fact-step (x x)) !-- at this point in an applicative order evaluation language we're getting into an infinite expansion
 ;;      -> fact-step ((λx.fact-step (x x)) (λx.fact-step (x x)))
 ;;      == (λf.λn.if (iszero n) 1 (mult (f (pred n) n))) ((λx.fact-step (x x)) (λx.fact-step (x x)))
 ;;      -> λn.(if (iszero n) 1 (mult ( (((λx.fact-step (x x)) (λx.fact-step (x x))) (pred n) ) n)))

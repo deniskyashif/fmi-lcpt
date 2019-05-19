@@ -1,18 +1,24 @@
-(defn repeated [n f x]
-  (if (= n 0)
-    x
-    (f (repeated (- n 1) f x))))
+(load-file "fixed_point.clj")
+
+(def repeated-step
+  (fn [next-step]
+    (fn [n]
+      (fn [f]
+        (fn [x]
+          (if (= n 0)
+            x
+            (f (((next-step (- n 1)) f) x))))))))
+
+(def repeated (Z repeated-step))
 
 ;; (repeated 5 f x) -> (f (f (f (f (f x)))))
 
-;; Church numerals
-(defn c [n]
-  (fn [f]
-    (fn [x]
-      (repeated n f x))))
-
-(def c0 (c 0))
-(def c1 (c 1))
+(def c0 (repeated 0))
+(def c1 (repeated 1))
+(def c2 (repeated 2))
+(def c3 (repeated 3))
+(def c4 (repeated 4))
+(def c5 (repeated 5))
 
 (def c-add
   (fn [m]
@@ -30,7 +36,7 @@
 (def c-exp
   (fn [m]
     (fn [n]
-      (m n))))
+      (n m))))
 
 (def I (fn [x] x))
 (def K (fn [x] (fn [y] x)))
@@ -81,18 +87,25 @@
 
 (def c-pred
   (fn [n]
-    (c-first
+    (c-second
      ((n (fn [u]
            ((c-cons (c-succ (c-first u)))
-            (c-second u))))
+            (c-first u))))
       ((c-cons c0) c0)))))
 
-(def is-zero
+(def c-zero
   (fn [n]
-    ((n (fn [x] c-false)) c-true)))
+    ((n (fn [m] c-false))
+     c-true)))
 
 (def S
   (fn [x]
     (fn [y]
       (fn [z]
         ((x z) (y z))))))
+
+(def c-if
+  (fn [b]
+    (fn [x]
+      (fn [y]
+        ((b x) y)))))
