@@ -1,4 +1,4 @@
-(load-file "./fixed-point.clj")
+(load-file "./fixed_point.clj")
 
 ;; Factorial
 (def fact-step
@@ -9,6 +9,11 @@
         (* (next-step (- n 1)) n)))))
 
 (def fact (Y1 fact-step))
+
+;; Test
+(assert (= (fact 1) 1))
+(assert (= (fact 3) 6))
+(assert (= (fact 5) 120))
 
 ;; Factorial reduction using the Y combinator
 ;; ------------------------------------------

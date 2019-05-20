@@ -30,3 +30,7 @@
       (+ (next-step (- n 1)) (next-step (- n 2))))))
 
 (def fib (Y1 fib-step))
+
+(assert (= (fib 1) 1))
+(assert (= (fib 3) 2))
+(assert (= (fib 4) 3))
