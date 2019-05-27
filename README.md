@@ -2,5 +2,6 @@
 
 2018/2019
 
-"Lambda Calculus and Proof Theory" course assignments at the Sofia University's Faculty of Mathematics and Informatics.  
+"Lambda Calculus and Proof Theory" at the Sofia University's Faculty of Mathematics and Informatics.  
+Solutions to some of the course assignments.
 
