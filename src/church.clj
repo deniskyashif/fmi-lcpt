@@ -93,6 +93,11 @@
             (c-first u))))
       ((c-cons c0) c0)))))
 
+(def c-subtract
+  (fn [m]
+    (fn [n]
+      ((n c-pred) m))))
+
 (def c-zero
   (fn [n]
     ((n (fn [m] c-false))
