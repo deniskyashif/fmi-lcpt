@@ -42,4 +42,4 @@ c1 = λfx.fx
 c1 : (s → t) → s → t  
 
 c2 = λfx.f(fx)  
-c2 : (s → t) → s → t  
+c2 : (s → s) → s → s  

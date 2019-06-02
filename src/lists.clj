@@ -25,7 +25,10 @@
       (fn [else]
         ((condition then) else)))))
 
-;; λnext-step.λlist1.λlist2.my-if (is-empty list1) list2 ((pair (head list1)) (tail list1) list2)
+;; λnext-step.λlist1.λlist2.
+;;   my-if (is-empty list1)
+;;         list2
+;;         ((pair (head list1)) (tail list1) list2)
 (def my-append-step
   (fn [next-step]
     (fn [list1]
@@ -37,7 +40,10 @@
 
 (def my-append (Z my-append-step))
 
-;; λnext-step.λf.λlist.my-if (is-empty list) list ((pair (f (head list))) ((next-step f) (tail-list)))
+;; λnext-step.λf.λlist.
+;;   my-if (is-empty list)
+;;         list
+;;         ((pair (f (head list))) ((next-step f) (tail-list)))
 (def my-map-step
   (fn [next-step]
     (fn [f]
@@ -49,7 +55,10 @@
 
 (def my-map (Z my-map-step))
 
-;; ;; λnext-step.λlist.my-if (is-empty list) empty-list ((my-append (next-step (tail list))) ((pair (head list)) empty-list))
+;; λnext-step.λlist.
+;;   my-if (is-empty list)
+;;         empty-list
+;;         ((my-append (next-step (tail list))) ((pair (head list)) empty-list))
 (def my-reverse-step
   (fn [next-step]
     (fn [list]
@@ -59,7 +68,10 @@
 
 (def my-reverse (Z my-reverse-step))
 
-;; λnext-step.λlist.my-if (is-empty list) 0 (succ (next-step (tail list)))
+;; λnext-step.λlist.
+;;   my-if (is-empty list)
+;;         0
+;;         (succ (next-step (tail list)))
 (def my-length-step
   (fn [next-step]
     (fn [list]
@@ -69,8 +81,12 @@
 
 (def my-length (Z my-length-step))
 
-;; λnext-step.λpredicate.λlist
-;;     .my-if (is-empty list) empty-list (my-if (predicate (head list)) ((pair (head list) (next-step predicate (tail list)))) (next-step predicate (tail list)))
+;; λnext-step.λpredicate.λlist.
+;;   my-if (is-empty list)
+;;         empty-list
+;;         (my-if (predicate (head list))
+;;                ((pair (head list) (next-step predicate (tail list))))
+;;                (next-step predicate (tail list)))
 (def my-filter-step
   (fn [next-step]
     (fn [predicate]
