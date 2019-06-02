@@ -8,6 +8,14 @@
     (= n 0) (ackermann-rec (- m 1) 1)
     :else (ackermann-rec (- m 1) (ackermann-rec m (- n 1)))))
 
+;; Definition (for c-* definitions check church.clj)
+;; ackermann-step :=
+;;   λnext-step.λm.λn.
+;;     if (c-zero m)
+;;        (c-succ n)
+;;        (if (c-zero n)
+;;            (next-step (c-pred m) c1)
+;;            (next-step (c-pred m) (next-step m (c-pred n)))) 
 (def ackermann-step
   (fn [next-step]
     (fn [m]
@@ -18,6 +26,7 @@
           :else ((next-step (c-pred m))
                  ((next-step m) (c-pred n))))))))
 
+;; ackermann := Z ackermann-step
 (def ackermann (Z ackermann-step))
 
 ;; Tests
