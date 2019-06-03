@@ -3,36 +3,68 @@
 const IsZero = (x: number): boolean => x === 0;
 const Succ = (x: number) => x + 1;
 
+// if then else
 function Cases<T>(cond: boolean, a: T, b: T): T {
     return cond ? a : b;
 }
 
+// primitive recursor
 function Rec<T>(sn: number, s: T, t: (z: number, w: T) => T) {
     return IsZero(sn) ? s : t(sn - 1, Rec(sn - 1, s, t));
 }
 
-function add(x: number, y: number) {
+function add(x: number, y: number): number {
     return Rec<number>(x, y, (z, w) => Succ(w));
 }
 
-function multiply(x: number, y: number) {
+function multiply(x: number, y: number): number {
     return Rec<number>(y, 0, (z, w) => add(x, w));
 }
 
-function exp(x: number, y: number) {
+function exp(x: number, y: number): number {
     return Rec<number>(y, 1, (z, w) => multiply(x, w));
 }
 
-function double(x: number) {
+function double(x: number): number {
     return Rec<number>(x, 0, (z, w) => Succ(Succ(w)));
 }
 
-function pred(x: number) {
+function pred(x: number): number {
     return Rec<number>(x, 0, (z, w) => z);
 }
 
-function subtract(x: number, y: number) {
+function subtract(x: number, y: number): number {
     return Rec<number>(y, x, (z, w) => pred(w));
+}
+
+function remainder(x: number, y: number): number {
+    return Cases<number>(
+        lt(x, y),
+        0,
+        Rec<number>(
+            x,
+            0,
+            (z, w) => Cases<number>(
+                eq(pred(y), w),
+                0,
+                Succ(w)
+            ))
+    );
+}
+
+function divide(x: number, y: number): number {
+    return Cases<number>(
+        lt(x, y),
+        0,
+        (Rec<number>(
+            x,
+            1,
+            (z, w) => Cases<number>(
+                eq(pred(y), remainder(z, y)),
+                Succ(w),
+                w
+            )))
+    );
 }
 
 function not(x: boolean) {
@@ -97,6 +129,20 @@ console.assert(pred(0) === 0);
 console.assert(subtract(10, 1) === 9);
 console.assert(subtract(4, 4) === 0);
 console.assert(subtract(2, 3) === 0);
+
+console.assert(remainder(4, 2) === 0);
+console.assert(remainder(5, 2) === 1);
+console.assert(remainder(10, 6) === 4);
+console.assert(remainder(1, 2) === 0);
+
+console.assert(divide(2, 2) === 1);
+console.assert(divide(4, 2) === 2);
+console.assert(divide(6, 2) === 3);
+console.assert(divide(12, 3) === 4);
+console.assert(divide(11, 11) === 1);
+console.assert(divide(10, 5) === 2);
+console.assert(divide(99, 11) === 9);
+console.assert(divide(99, 100) === 0);
 
 console.assert(not(true) === false);
 console.assert(not(false) === true);
