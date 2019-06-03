@@ -67,6 +67,21 @@ function divide(x: number, y: number): number {
     );
 }
 
+function isPrime(x: number) {
+    return Cases<boolean>(
+        eq(x, 1),
+        true,
+        eq(2,
+           (Rec<number>(
+               x,
+               0,
+               (z, w) => Cases<number>(
+                   IsZero(remainder(x, z)),
+                   Succ(w),
+                   w
+               )))));
+}
+
 function not(x: boolean) {
     return Cases<boolean>(x, false, true);
 }
@@ -143,6 +158,15 @@ console.assert(divide(11, 11) === 1);
 console.assert(divide(10, 5) === 2);
 console.assert(divide(99, 11) === 9);
 console.assert(divide(99, 100) === 0);
+
+console.assert(isPrime(13) === true);
+console.assert(isPrime(12) === false);
+console.assert(isPrime(1) === true);
+console.assert(isPrime(2) === true);
+console.assert(isPrime(3) === true);
+console.assert(isPrime(5) === true);
+console.assert(isPrime(9) === false);
+console.assert(isPrime(127) === true);
 
 console.assert(not(true) === false);
 console.assert(not(false) === true);
