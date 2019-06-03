@@ -23,6 +23,10 @@ function exp(x: number, y: number) {
     return Rec<number>(y, 1, (z, w) => multiply(x, w));
 }
 
+function double(x: number) {
+    return Rec<number>(x, 0, (z, w) => Succ(Succ(w)));
+}
+
 function pred(x: number) {
     return Rec<number>(x, 0, (z, w) => z);
 }
@@ -81,6 +85,10 @@ console.assert(multiply(3, 2) === 6);
 console.assert(exp(2, 3) === 8);
 console.assert(exp(1, 3) === 1);
 console.assert(exp(3, 2) === 9);
+
+console.assert(double(2) === 4);
+console.assert(double(1) === 2);
+console.assert(double(3) === 6);
 
 console.assert(pred(2) === 1);
 console.assert(pred(20) === 19);

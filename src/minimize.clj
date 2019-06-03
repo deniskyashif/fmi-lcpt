@@ -11,7 +11,7 @@
     (fn [f]
       (fn [cn]
         ((((c-if (c-zero (f cn)))
-           ;; evaluation on demand
+           ;; evaluate on demand
            (fn [] cn))
           (fn [] ((next-step f) (c-succ cn)))))))))
 
