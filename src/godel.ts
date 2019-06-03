@@ -1,15 +1,22 @@
-// Gödel’s System T in TypeScript
+/*
+   Gödel’s System T in TypeScript
+*/
 
 const IsZero = (x: number): boolean => x === 0;
-const Succ = (x: number) => x + 1;
+const Succ = (x: number): number => x + 1;
 
-// if then else
+// A generic If-Then-Else
 function Cases<T>(cond: boolean, a: T, b: T): T {
     return cond ? a : b;
 }
 
-// primitive recursor
-function Rec<T>(sn: number, s: T, t: (z: number, w: T) => T) {
+/* Primitive recursor;
+   Reductions: 
+     R 0 s t = s
+     R sn s t = t n (R n s t)
+     "sn" stands for "the successor of n"
+*/
+function Rec<T>(sn: number, s: T, t: (z: number, w: T) => T): T {
     return IsZero(sn) ? s : t(sn - 1, Rec(sn - 1, s, t));
 }
 
@@ -67,7 +74,7 @@ function divide(x: number, y: number): number {
     );
 }
 
-function isPrime(x: number) {
+function isPrime(x: number): boolean {
     return Cases<boolean>(
         eq(x, 1),
         true,
@@ -82,7 +89,7 @@ function isPrime(x: number) {
                )))));
 }
 
-function not(x: boolean) {
+function not(x: boolean): boolean {
     return Cases<boolean>(x, false, true);
 }
 
@@ -98,25 +105,25 @@ function xor(x: boolean, y: boolean): boolean {
     return Cases<boolean>(x, not(y), y);
 }
 
-function eq(x: number, y: number) {
+function eq(x: number, y: number): boolean {
     return and(
         IsZero(subtract(x, y)),
         IsZero(subtract(y, x)));
 }
 
-function gt(x: number, y: number) {
+function gt(x: number, y: number): boolean {
     return not(IsZero(subtract(x, y)));
 }
 
-function lt(x: number, y: number) {
+function lt(x: number, y: number): boolean {
     return not(IsZero(subtract(y, x)));
 }
 
-function gte(x: number, y: number) {
+function gte(x: number, y: number): boolean {
     return or(eq(x, y), gt(x, y));
 }
 
-function lte(x: number, y: number) {
+function lte(x: number, y: number): boolean {
     return or(eq(x, y), lt(x, y));
 }
 
