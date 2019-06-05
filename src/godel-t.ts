@@ -2,6 +2,7 @@
    Gödel’s System T in TypeScript
 */
 
+const Zero = 0;
 const Succ = (x: number): number => x + 1;
 
 // A generic If-Then-Else
@@ -16,7 +17,7 @@ function Cases<T>(cond: boolean, a: T, b: T): T {
      "sn" stands for "the successor of n"
 */
 function Rec<T>(sn: number, s: T, t: (z: number, w: T) => T): T {
-    return sn === 0 ? s : t(sn - 1, Rec(sn - 1, s, t));
+    return sn === Zero ? s : t(sn - 1, Rec(sn - 1, s, t));
 }
 
 function add(x: number, y: number): number {
@@ -24,7 +25,7 @@ function add(x: number, y: number): number {
 }
 
 function multiply(x: number, y: number): number {
-    return Rec<number>(y, 0, (z, w) => add(x, w));
+    return Rec<number>(y, Zero, (z, w) => add(x, w));
 }
 
 function exp(x: number, y: number): number {
@@ -32,11 +33,11 @@ function exp(x: number, y: number): number {
 }
 
 function double(x: number): number {
-    return Rec<number>(x, 0, (z, w) => Succ(Succ(w)));
+    return Rec<number>(x, Zero, (z, w) => Succ(Succ(w)));
 }
 
 function pred(x: number): number {
-    return Rec<number>(x, 0, (z, w) => z);
+    return Rec<number>(x, Zero, (z, w) => z);
 }
 
 function subtract(x: number, y: number): number {
@@ -50,13 +51,13 @@ const isZero = (x: number): boolean => {
 function remainder(x: number, y: number): number {
     return Cases<number>(
         lt(x, y),
-        0,
+        Zero,
         Rec<number>(
             x,
-            0,
+            Zero,
             (z, w) => Cases<number>(
                 eq(pred(y), w),
-                0,
+                Zero,
                 Succ(w)
             ))
     );
@@ -65,7 +66,7 @@ function remainder(x: number, y: number): number {
 function divide(x: number, y: number): number {
     return Cases<number>(
         lt(x, y),
-        0,
+        Zero,
         (Rec<number>(
             x,
             1,
@@ -84,7 +85,7 @@ function isPrime(x: number): boolean {
         eq(2,
            (Rec<number>(
                x,
-               0,
+               Zero,
                (z, w) => Cases<number>(
                    isZero(remainder(x, z)),
                    Succ(w),
@@ -128,6 +129,34 @@ function lte(x: number, y: number): boolean {
     return or(eq(x, y), lt(x, y));
 }
 
+type OneArityNumericFn = (x: number) => number;
+
+function compose(f: OneArityNumericFn, g: OneArityNumericFn): OneArityNumericFn {
+    return x => f(g(x));
+}
+
+// Given a function f and a number n, it return a function that computes the n-th iterate of f.
+// e.g. iterate(f, 3) = x => f(f(f(x)))
+function iterate(f: OneArityNumericFn, n: number): OneArityNumericFn {
+    return Rec<OneArityNumericFn>(
+        n,
+        x => x,
+        (z, w) => compose(f, w));
+}
+
+/*
+  Definition:
+    A(0)(n) = s(n)
+    A(s(m))(n) = iter(A(m))(n)(A(m)(1))
+  Demo: https://gfredericks.com/things/arith/ackermann 
+*/
+function ackermann(x: number): OneArityNumericFn {
+    return Rec<OneArityNumericFn>(
+        x,
+        Succ,
+        (z, w) => iterate(w, w(Succ(Zero))));
+}
+
 // Tests
 console.assert(add(1, 2) === 3);
 console.assert(add(4, 2) === 6);
@@ -152,6 +181,10 @@ console.assert(pred(0) === 0);
 console.assert(subtract(10, 1) === 9);
 console.assert(subtract(4, 4) === 0);
 console.assert(subtract(2, 3) === 0);
+
+console.assert(isZero(0) === true);
+console.assert(isZero(9) === false);
+console.assert(isZero(1) === false);
 
 console.assert(remainder(4, 2) === 0);
 console.assert(remainder(5, 2) === 1);
@@ -213,3 +246,8 @@ console.assert(gte(5, 2) === true);
 console.assert(lte(1, 2) === true);
 console.assert(lte(1, 1) === true);
 console.assert(lte(5, 2) === false);
+
+console.assert(ackermann(1)(1) === 3);
+console.assert(ackermann(0)(2) === 3);
+console.assert(ackermann(1)(0) === 2);
+console.assert(ackermann(0)(1) === 2);
