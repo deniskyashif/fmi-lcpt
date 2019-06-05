@@ -16,36 +16,36 @@ function Cases<T>(cond: boolean, a: T, b: T): T {
      Rec sn s t = t n (Rec n s t)
      "sn" stands for "the successor of n"
 */
-function Rec<T>(sn: number, s: T, t: (z: number, w: T) => T): T {
+function Rec<T>(sn: number, s: T, t: (z: number, acc: T) => T): T {
     return sn === Zero ? s : t(sn - 1, Rec(sn - 1, s, t));
 }
 
 function add(x: number, y: number): number {
-    return Rec<number>(x, y, (z, w) => Succ(w));
+    return Rec<number>(x, y, (z, acc) => Succ(acc));
 }
 
 function multiply(x: number, y: number): number {
-    return Rec<number>(y, Zero, (z, w) => add(x, w));
+    return Rec<number>(y, Zero, (z, acc) => add(x, acc));
 }
 
 function exp(x: number, y: number): number {
-    return Rec<number>(y, 1, (z, w) => multiply(x, w));
+    return Rec<number>(y, 1, (z, acc) => multiply(x, acc));
 }
 
 function double(x: number): number {
-    return Rec<number>(x, Zero, (z, w) => Succ(Succ(w)));
+    return Rec<number>(x, Zero, (z, acc) => Succ(Succ(acc)));
 }
 
 function pred(x: number): number {
-    return Rec<number>(x, Zero, (z, w) => z);
+    return Rec<number>(x, Zero, (z, acc) => z);
 }
 
 function subtract(x: number, y: number): number {
-    return Rec<number>(y, x, (z, w) => pred(w));
+    return Rec<number>(y, x, (z, acc) => pred(acc));
 }
 
 const isZero = (x: number): boolean => {
-    return Rec<boolean>(x, true, (z, w) => false);
+    return Rec<boolean>(x, true, (z, acc) => false);
 }
 
 function remainder(x: number, y: number): number {
@@ -55,10 +55,10 @@ function remainder(x: number, y: number): number {
         Rec<number>(
             x,
             Zero,
-            (z, w) => Cases<number>(
-                eq(pred(y), w),
+            (z, acc) => Cases<number>(
+                eq(pred(y), acc),
                 Zero,
-                Succ(w)
+                Succ(acc)
             ))
     );
 }
@@ -70,10 +70,10 @@ function divide(x: number, y: number): number {
         (Rec<number>(
             x,
             1,
-            (z, w) => Cases<number>(
+            (z, acc) => Cases<number>(
                 eq(pred(y), remainder(z, y)),
-                Succ(w),
-                w
+                Succ(acc),
+                acc
             )))
     );
 }
@@ -86,10 +86,10 @@ function isPrime(x: number): boolean {
            (Rec<number>(
                x,
                Zero,
-               (z, w) => Cases<number>(
+               (z, acc) => Cases<number>(
                    isZero(remainder(x, z)),
-                   Succ(w),
-                   w
+                   Succ(acc),
+                   acc
                )))));
 }
 
@@ -129,19 +129,19 @@ function lte(x: number, y: number): boolean {
     return or(eq(x, y), lt(x, y));
 }
 
-type OneArityNumericFn = (x: number) => number;
+type OneArityFn<T, K> = (x: T) => K;
 
-function compose(f: OneArityNumericFn, g: OneArityNumericFn): OneArityNumericFn {
+function compose<T, K, V>(f: OneArityFn<K, V>, g: OneArityFn<T, K>): OneArityFn<T, V> {
     return x => f(g(x));
 }
 
 // Given a function f and a number n, it return a function that computes the n-th iterate of f.
-// e.g. iterate(f, 3) = x => f(f(f(x)))
-function iterate(f: OneArityNumericFn, n: number): OneArityNumericFn {
-    return Rec<OneArityNumericFn>(
+// e.g. repeat(f, 3) = x => f(f(f(x)))
+function repeat<T>(f: OneArityFn<T, T>, n: number): OneArityFn<T, T> {
+    return Rec<OneArityFn<T, T>>(
         n,
         x => x,
-        (z, w) => compose(f, w));
+        (z, acc) => compose(f, acc));
 }
 
 /*
@@ -150,11 +150,11 @@ function iterate(f: OneArityNumericFn, n: number): OneArityNumericFn {
     A(s(m))(n) = iter(A(m))(n)(A(m)(1))
   Demo: https://gfredericks.com/things/arith/ackermann 
 */
-function ackermann(x: number): OneArityNumericFn {
-    return Rec<OneArityNumericFn>(
+function ackermann(x: number): OneArityFn<number, number> {
+    return Rec<OneArityFn<number, number>>(
         x,
         Succ,
-        (z, w) => iterate(w, w(Succ(Zero))));
+        (z, acc) => y => repeat(acc, y)(acc(Succ(Zero))));
 }
 
 // Tests
@@ -251,3 +251,7 @@ console.assert(ackermann(1)(1) === 3);
 console.assert(ackermann(0)(2) === 3);
 console.assert(ackermann(1)(0) === 2);
 console.assert(ackermann(0)(1) === 2);
+console.assert(ackermann(2)(2) === 7);
+console.assert(ackermann(3)(3) === 61);
+
+
